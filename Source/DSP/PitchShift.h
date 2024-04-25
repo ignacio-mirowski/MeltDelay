@@ -14,27 +14,61 @@
 class PitchShift      // Copiado de https://github.com/juandagilc/Audio-Effects/blob/master/Pitch%20Shift/Source/PluginProcessor.cpp
 {
 public:
+
     PitchShift();
     ~PitchShift();
 
     //void onUpdateFftSizeParamChoice(int indexChoice);
     //void onUpdateHopSizeParamChoice(int indexChoice);
     //void onUpdateWindowTypeParamChoice(int indexChoice);
-  
-    void process(juce::AudioBuffer<float>& buffer, int numOutputChannelsIn);
+
     void prepare(juce::dsp::ProcessSpec& spec);
 
+    void process(juce::AudioBuffer<float>& buffer, float inSemitones);
+
+    //======================================
+
+    float getScaleSemitone(float inValue);
+
+    void updateFftSize(int inNumChannels);
+
+    void updateHopSize();
+
+    void updateAnalysisWindow();
+
+    void updateWindow(const juce::HeapBlock<float>& window, const int windowLength);
+
+    void updateWindowScaleFactor();
+
+    float princArg(const float phase);
+
 private:
-    juce::StringArray fftSizeItemsUI = {
-    "32",
-    "64",
-    "128",
-    "256",
-    "512",
-    "1024",
-    "2048",
-    "4096",
-    "8192"
+
+    enum windowTypeIndex
+    {
+        windowTypeBartlett = 0,
+        windowTypeHann,
+        windowTypeHamming,
+    };
+
+    enum hopSizeIndex
+    {
+        hopSize2 = 0,
+        hopSize4,
+        hopSize8,
+    };
+
+    /*juce::StringArray fftSizeItemsUI =
+    {
+        "32",
+        "64",
+        "128",
+        "256",
+        "512",
+        "1024",
+        "2048",
+        "4096",
+        "8192"
     };
 
     enum fftSizeIndex {
@@ -57,37 +91,13 @@ private:
         "1/8 Window",
     };
 
-    enum hopSizeIndex {
-        hopSize2 = 0,
-        hopSize4,
-        hopSize8,
-    };
-
     //======================================
 
     juce::StringArray windowTypeItemsUI = {
         "Bartlett",
         "Hann",
         "Hamming",
-    };
-
-    enum windowTypeIndex {
-        windowTypeBartlett = 0,
-        windowTypeHann,
-        windowTypeHamming,
-    };
-
-    //======================================
-
-    float getScaleSemitone(float inValue);
-
-    void updateFftSize(int inNumChannels);
-    void updateHopSize();
-    void updateAnalysisWindow();
-    void updateWindow(const juce::HeapBlock<float>& window, const int windowLength);
-    void updateWindowScaleFactor();
-
-    float princArg(const float phase);
+    };*/
 
     //======================================
 
@@ -110,7 +120,6 @@ private:
     juce::HeapBlock<juce::dsp::Complex<float>> fftFrequencyDomain;
 
     int samplesSinceLastFFT;
-
     int overlap;
     int hopSize;
     float windowScaleFactor;

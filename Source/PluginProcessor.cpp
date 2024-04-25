@@ -13,14 +13,14 @@
 //==============================================================================
 MeltDelayAudioProcessor::MeltDelayAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
-     : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
-                       .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                      #endif
-                       .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                     #endif
-                       ), apvts(*this, nullptr, "Parameters", createParameters())
+    : AudioProcessor(BusesProperties()
+#if ! JucePlugin_IsMidiEffect
+#if ! JucePlugin_IsSynth
+        .withInput("Input", juce::AudioChannelSet::stereo(), true)
+#endif
+        .withOutput("Output", juce::AudioChannelSet::stereo(), true)
+#endif
+    ), apvts(*this, nullptr, "Parameters", createParameters())
 #endif
 {
 }
@@ -39,6 +39,11 @@ juce::AudioProcessorValueTreeState::ParameterLayout MeltDelayAudioProcessor::cre
     parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ "Time", 1 }, "Time", 0.1f, 0.9f, 0.25f));
     parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ "Feedback", 1 }, "Feedback", 0.1f, 0.9f, 0.25f));
 
+    /** Pitch */
+    parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("Pitch", 1), "Pitch",
+        juce::NormalisableRange<float>(-12.0f, 12.0f, 0.01f, 1.0f),
+        -12.0f, "st", juce::AudioProcessorParameter::genericParameter, nullptr, nullptr));
+
     //parameters.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{ "FftSizeChoice", 1 }, "FftSizeChoice", fftSizeItemsUI, fftSize512));
     //parameters.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{ "HopSizeChoice", 1 }, "HopSizeChoice", hopSizeItemsUI, hopSize8));
     //parameters.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{ "WindowTypeChoice", 1 }, "WindowTypeChoice", windowTypeItemsUI, windowTypeHann));
@@ -55,29 +60,29 @@ const juce::String MeltDelayAudioProcessor::getName() const
 
 bool MeltDelayAudioProcessor::acceptsMidi() const
 {
-   #if JucePlugin_WantsMidiInput
+#if JucePlugin_WantsMidiInput
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 bool MeltDelayAudioProcessor::producesMidi() const
 {
-   #if JucePlugin_ProducesMidiOutput
+#if JucePlugin_ProducesMidiOutput
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 bool MeltDelayAudioProcessor::isMidiEffect() const
 {
-   #if JucePlugin_IsMidiEffect
+#if JucePlugin_IsMidiEffect
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 double MeltDelayAudioProcessor::getTailLengthSeconds() const
@@ -88,7 +93,7 @@ double MeltDelayAudioProcessor::getTailLengthSeconds() const
 int MeltDelayAudioProcessor::getNumPrograms()
 {
     return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
-                // so this should be at least 1, even if you're not really implementing programs.
+    // so this should be at least 1, even if you're not really implementing programs.
 }
 
 int MeltDelayAudioProcessor::getCurrentProgram()
@@ -96,21 +101,21 @@ int MeltDelayAudioProcessor::getCurrentProgram()
     return 0;
 }
 
-void MeltDelayAudioProcessor::setCurrentProgram (int index)
+void MeltDelayAudioProcessor::setCurrentProgram(int index)
 {
 }
 
-const juce::String MeltDelayAudioProcessor::getProgramName (int index)
+const juce::String MeltDelayAudioProcessor::getProgramName(int index)
 {
     return {};
 }
 
-void MeltDelayAudioProcessor::changeProgramName (int index, const juce::String& newName)
+void MeltDelayAudioProcessor::changeProgramName(int index, const juce::String& newName)
 {
 }
 
 //==============================================================================
-void MeltDelayAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void MeltDelayAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     juce::dsp::ProcessSpec spec;
     spec.sampleRate = sampleRate;
@@ -131,28 +136,28 @@ void MeltDelayAudioProcessor::releaseResources()
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool MeltDelayAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool MeltDelayAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
 {
-  #if JucePlugin_IsMidiEffect
-    juce::ignoreUnused (layouts);
+#if JucePlugin_IsMidiEffect
+    juce::ignoreUnused(layouts);
     return true;
-  #else
+#else
     // This is the place where you check if the layout is supported.
     // In this template code we only support mono or stereo.
     // Some plugin hosts, such as certain GarageBand versions, will only
     // load plugins that support stereo bus layouts.
     if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
-     && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
+        && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
         return false;
 
     // This checks if the input layout matches the output layout
-   #if ! JucePlugin_IsSynth
+#if ! JucePlugin_IsSynth
     if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
         return false;
-   #endif
+#endif
 
     return true;
-  #endif
+#endif
 }
 #endif
 
@@ -179,19 +184,19 @@ void MeltDelayAudioProcessor::updateParameters()
     dryWet.setDryWetValue(inDryWetParameter);
 }
 
-void MeltDelayAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+void MeltDelayAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     updateParameters();
 
-    //dryBuffer.makeCopyOf(buffer);
+    dryBuffer.makeCopyOf(buffer);
 
     //delayJuceDSP.process(buffer);
-    //delayCircBuffer.process(buffer);
+    delayCircBuffer.process2(buffer);
 
     //FOR TEST, ENREALDIAD VA ADENTRO DEL DELAYCIRC
-    pitchShift.process(buffer, getNumOutputChannels());
+    //pitchShift.process(buffer, *apvts.getRawParameterValue("Pitch"));
 
-    //dryWet.process(dryBuffer, buffer);
+    dryWet.process(dryBuffer, buffer);
 }
 
 //==============================================================================
@@ -207,7 +212,7 @@ juce::AudioProcessorEditor* MeltDelayAudioProcessor::createEditor()
 }
 
 //==============================================================================
-void MeltDelayAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
+void MeltDelayAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
@@ -216,7 +221,7 @@ void MeltDelayAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     copyXmlToBinary(*xml, destData);
 }
 
-void MeltDelayAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+void MeltDelayAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.

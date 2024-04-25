@@ -23,6 +23,8 @@ public:
     void process(juce::AudioBuffer<float>& buffer);
     void prepare(double theSampleRate, juce::dsp::ProcessSpec spec);
 
+    void process2(juce::AudioBuffer<float>& buffer);
+
     //Pitch shift parameters update (no me gusta que este esto aca...despues lo re-pienso!)
     void fftSizeUpdated(int indexChoice);
     void hopSizeUpdated(int indexChoice);
@@ -39,5 +41,6 @@ private:
     float timeSmooth[2] = { 0.0f };
     PitchShift pitchShift;
 
+    juce::AudioBuffer<float> circularAudioBuffer{ 2, circularBufferSize };
     //Circular buffer como audiobuffer
 };
