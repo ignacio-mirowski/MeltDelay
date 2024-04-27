@@ -35,10 +35,11 @@ juce::AudioProcessorValueTreeState::ParameterLayout MeltDelayAudioProcessor::cre
 
     //auto pi = juce::MathConstants<float>::pi;
     parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ "DryWet", 1 }, "DryWet", 0.0f, 100.0f, 50.0f));
-    parameters.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{ "TimeChoice", 1 }, "TimeChoice", juce::StringArray("1/64", "1/32", "1/16", "1/8", "1/4", "1/2", "1/1"), 0));
+    parameters.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{ "TimeStyle", 1 }, "TimeChoice", juce::StringArray("ms", "rythm"), 0));
+    parameters.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{ "TimeChoice", 1 }, "TimeChoice", juce::StringArray("1/16", "1/8", "1/4", "1/2", "1/1"), 0));
     parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ "Time", 1 }, "Time", 0.1f, 0.9f, 0.25f));
     parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ "Feedback", 1 }, "Feedback", 0.1f, 0.9f, 0.25f));
-
+    
     /** Pitch */
     parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("Pitch", 1), "Pitch",
         juce::NormalisableRange<float>(-12.0f, 12.0f, 0.01f, 1.0f),
@@ -166,6 +167,7 @@ void MeltDelayAudioProcessor::updateParameters()
     float inFeedbackParameter = *apvts.getRawParameterValue("Feedback");
     float inDryWetParameter = *apvts.getRawParameterValue("DryWet");
     int inTimeChoice = *apvts.getRawParameterValue("TimeChoice");
+    int inTimeStyle = *apvts.getRawParameterValue("TimeStyle");
     float inTime = *apvts.getRawParameterValue("Time");
 
     //// Params de pitch shifting POR AHORA HARCODEADOS
@@ -176,8 +178,11 @@ void MeltDelayAudioProcessor::updateParameters()
 
     delayJuceDSP.setDelayFeedback(inFeedbackParameter);
     delayJuceDSP.setDelayTime(inTime);
+    delayCircBuffer.setDelayTimeStyle(inTimeStyle);
     delayCircBuffer.setDelayFeedback(inFeedbackParameter);
     delayCircBuffer.setDelayTime(inTime);
+    delayCircBuffer.setDelayTimeChoice(inTimeChoice);
+
     //Sets de params de pitch shift dentro de delayCircBuffer
         //delayCircBuffer.
     //
@@ -191,7 +196,7 @@ void MeltDelayAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juc
     dryBuffer.makeCopyOf(buffer);
 
     //delayJuceDSP.process(buffer);
-    delayCircBuffer.process2(buffer);
+    delayCircBuffer.process2(buffer, getPlayHead());
 
     //FOR TEST, ENREALDIAD VA ADENTRO DEL DELAYCIRC
     //pitchShift.process(buffer, *apvts.getRawParameterValue("Pitch"));

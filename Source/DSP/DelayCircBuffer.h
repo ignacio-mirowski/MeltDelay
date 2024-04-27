@@ -20,10 +20,14 @@ public:
 
     void setDelayTime(float inTimeParam);
     void setDelayFeedback(float inFeedbackParam);
+    void setDelayTimeStyle(int inTimeStlye);
+    void setDelayTimeChoice(int inTimeChoice);
+
     void process(juce::AudioBuffer<float>& buffer);
     void prepare(double theSampleRate, juce::dsp::ProcessSpec spec);
 
-    void process2(juce::AudioBuffer<float>& buffer);
+    void process2(juce::AudioBuffer<float>& buffer, juce::AudioPlayHead* playHead);
+    void calculateTimeValue(juce::AudioPlayHead* playHead);
 
     //Pitch shift parameters update (no me gusta que este esto aca...despues lo re-pienso!)
     void fftSizeUpdated(int indexChoice);
@@ -34,11 +38,15 @@ private:
     float timeValue{ 0.0f };
     float feedbackValue{ 0.9f };
     float sampleRate{ 0.0f };
+    int timeStyle{ 0 };
+    int timeChoice{ 0 };
+
     static const int circularBufferSize = 132300; // Maximo delay en samples seria esto??
     float circularBuffer[circularBufferSize][2] = { 0.0f }; // BufferSize = 3*44100 = 132300 (Quizas en vez de array de dos dimensiones puedo crear otra cosa? un juce::AudioBuffer o algo asi?)
     int readerPointer = 0;
     int writerPointer[2] = { 0 };
     float timeSmooth[2] = { 0.0f };
+
     PitchShift pitchShift;
 
     juce::AudioBuffer<float> circularAudioBuffer{ 2, circularBufferSize };
