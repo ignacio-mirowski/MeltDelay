@@ -60,12 +60,16 @@ public:
     juce::AudioProcessorValueTreeState apvts;
     juce::AudioProcessorValueTreeState::ParameterLayout createParameters();
     void updateParameters();
-
+    void joinBuffers(juce::AudioBuffer<float> outputBuffer, juce::AudioBuffer<float> buffer1, juce::AudioBuffer<float> buffer2);
 
 private:
     DelayJuceDSP delayJuceDSP;
     DryWet dryWet;
+    //Esta va para hacer un dry wet del efecto
     juce::AudioBuffer<float> dryBuffer;
+    //Este va para SIEMPRE mandar la señal dry mezclada con todo el efecto, asi solo las repeticiones tiene pitchshift
+    juce::AudioBuffer<float> dryBufferAlwaysOn;
+
     DelayCircBuffer delayCircBuffer;
 
     //FOR TEST, ENREALDIAD VA ADENTRO DEL DELAYCIRC

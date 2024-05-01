@@ -40,10 +40,24 @@ juce::AudioProcessorValueTreeState::ParameterLayout MeltDelayAudioProcessor::cre
     parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ "Time", 1 }, "Time", 0.1f, 0.9f, 0.25f));
     parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ "Feedback", 1 }, "Feedback", 0.1f, 0.9f, 0.25f));
     
-    /** Pitch */
-    parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("Pitch", 1), "Pitch",
-        juce::NormalisableRange<float>(-12.0f, 12.0f, 0.01f, 1.0f),
+    parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ "MeltTreshold", 1 }, "MeltTreshold", -300.0f, 6.0f, -24.0f));
+
+    //parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("InitialPitch", 1), "InitialPitch",
+    //    juce::NormalisableRange<float>(-12.0f, 0.0f, 1.0f, 1.0f),
+    //    -12.0f, "st", juce::AudioProcessorParameter::genericParameter, nullptr, nullptr));
+
+    parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("SemitonesToSubtract", 1), "SemitonesToSubtract",
+        juce::NormalisableRange<float>(0.0f, 12.0f, 1.0f, 1.0f),
         -12.0f, "st", juce::AudioProcessorParameter::genericParameter, nullptr, nullptr));
+
+    parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("SemitonesToStop", 1), "SemitonesToStop",
+        juce::NormalisableRange<float>(-120.0f, -1.0f, 1.0f, 1.0f),
+        -12.0f, "st", juce::AudioProcessorParameter::genericParameter, nullptr, nullptr));
+
+    ///** Pitch */
+    //parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("Pitch", 1), "Pitch",
+    //    juce::NormalisableRange<float>(-12.0f, 12.0f, 0.01f, 1.0f),
+    //    -12.0f, "st", juce::AudioProcessorParameter::genericParameter, nullptr, nullptr));
 
     //parameters.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{ "FftSizeChoice", 1 }, "FftSizeChoice", fftSizeItemsUI, fftSize512));
     //parameters.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{ "HopSizeChoice", 1 }, "HopSizeChoice", hopSizeItemsUI, hopSize8));
@@ -123,11 +137,11 @@ void MeltDelayAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlo
     spec.maximumBlockSize = samplesPerBlock;
     spec.numChannels = getTotalNumOutputChannels();
 
-    delayJuceDSP.prepare(spec);
+    //delayJuceDSP.prepare(spec);
     delayCircBuffer.prepare(sampleRate, spec);
 
-    //FOR TEST, ENREALDIAD VA ADENTRO DEL DELAYCIRC
-    pitchShift.prepare(spec);
+    //FOR TEST, ENREALDIAD VA ADENTRO DEL DELAYCIRC (Quizas no!)
+    //pitchShift.prepare(spec);
 }
 
 void MeltDelayAudioProcessor::releaseResources()
@@ -169,6 +183,10 @@ void MeltDelayAudioProcessor::updateParameters()
     int inTimeChoice = *apvts.getRawParameterValue("TimeChoice");
     int inTimeStyle = *apvts.getRawParameterValue("TimeStyle");
     float inTime = *apvts.getRawParameterValue("Time");
+    //float initialPitch = *apvts.getRawParameterValue("InitialPitch");
+    float meltTreshold = *apvts.getRawParameterValue("MeltTreshold");
+    float semitonesToSubtract = *apvts.getRawParameterValue("SemitonesToSubtract");
+    float semitonesToStop = *apvts.getRawParameterValue("SemitonesToStop");
 
     //// Params de pitch shifting POR AHORA HARCODEADOS
     //int inFftSizeChoice = *apvts.getRawParameterValue("FftSizeChoice");
@@ -182,6 +200,10 @@ void MeltDelayAudioProcessor::updateParameters()
     delayCircBuffer.setDelayFeedback(inFeedbackParameter);
     delayCircBuffer.setDelayTime(inTime);
     delayCircBuffer.setDelayTimeChoice(inTimeChoice);
+    delayCircBuffer.setMeltTreshold(meltTreshold);
+    //delayCircBuffer.setInitialPitch(initialPitch);
+    delayCircBuffer.setSemitonesToSubtract(semitonesToSubtract);
+    delayCircBuffer.setSemitonesToStop(semitonesToStop);
 
     //Sets de params de pitch shift dentro de delayCircBuffer
         //delayCircBuffer.
@@ -191,17 +213,43 @@ void MeltDelayAudioProcessor::updateParameters()
 
 void MeltDelayAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
+    // SOLO REPETICIONES
+    //updateParameters();
+
+    //dryBuffer.makeCopyOf(buffer);
+
+    //delayCircBuffer.process(buffer, getPlayHead());
+
+    //dryWet.process(dryBuffer, buffer);
+    //    
+    
+    // CON DRY SIEMPRE ON + REPETCIONES SOLAS
     updateParameters();
 
+    juce::AudioBuffer<float> delayBuffer;
+
     dryBuffer.makeCopyOf(buffer);
+    dryBufferAlwaysOn.makeCopyOf(buffer);
+    delayBuffer.makeCopyOf(buffer);
 
-    //delayJuceDSP.process(buffer);
-    delayCircBuffer.process2(buffer, getPlayHead());
+    // DryWet al 100% para que solo escuchemos el delay
+    delayCircBuffer.process(delayBuffer, getPlayHead());
 
-    //FOR TEST, ENREALDIAD VA ADENTRO DEL DELAYCIRC
-    //pitchShift.process(buffer, *apvts.getRawParameterValue("Pitch"));
+    //Simplemente es sumar sample por sample de ambos buffers y sustituir los valores en el buffer original
+    joinBuffers(buffer, dryBufferAlwaysOn, delayBuffer);
 
     dryWet.process(dryBuffer, buffer);
+}
+
+void MeltDelayAudioProcessor::joinBuffers(juce::AudioBuffer<float> outputBuffer, juce::AudioBuffer<float> buffer1, juce::AudioBuffer<float> buffer2)
+{
+    for (int channel = 0; channel < outputBuffer.getNumChannels(); channel++)
+    {
+        for (int i = 0; i < outputBuffer.getNumSamples(); i++)
+        {
+            outputBuffer.setSample(channel, i, buffer1.getSample(channel, i) + buffer2.getSample(channel, i));
+        }
+    }
 }
 
 //==============================================================================
