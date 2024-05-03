@@ -53,6 +53,12 @@ void DelayCircBuffer::setSemitonesToStop(float inSemitonesToStop)
     semitonesToStop = inSemitonesToStop;
 }
 
+void DelayCircBuffer::setSmoothMelt(float inSmoothMelt)
+{
+    pitchShift.onSmoothMeltChange(inSmoothMelt, sampleRate);
+}
+
+
 //void DelayCircBuffer::fftSizeUpdated(int indexChoice)
 //{
 //    //pitchShift.onUpdateFftSizeParamChoice(indexChoice);

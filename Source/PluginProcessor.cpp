@@ -48,11 +48,15 @@ juce::AudioProcessorValueTreeState::ParameterLayout MeltDelayAudioProcessor::cre
 
     parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("SemitonesToSubtract", 1), "SemitonesToSubtract",
         juce::NormalisableRange<float>(0.0f, 12.0f, 1.0f, 1.0f),
-        -12.0f, "st", juce::AudioProcessorParameter::genericParameter, nullptr, nullptr));
+        1.0f, "st", juce::AudioProcessorParameter::genericParameter, nullptr, nullptr));
 
     parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("SemitonesToStop", 1), "SemitonesToStop",
         juce::NormalisableRange<float>(-120.0f, -1.0f, 1.0f, 1.0f),
         -12.0f, "st", juce::AudioProcessorParameter::genericParameter, nullptr, nullptr));
+
+    parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("SmoothMelt", 1), "SmoothMelt",
+        juce::NormalisableRange<float>(1e-13f, 1e-3f, 1e-10f, 1.0f),
+        1e-13f, "", juce::AudioProcessorParameter::genericParameter, nullptr, nullptr));
 
     ///** Pitch */
     //parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("Pitch", 1), "Pitch",
@@ -187,6 +191,7 @@ void MeltDelayAudioProcessor::updateParameters()
     float meltTreshold = *apvts.getRawParameterValue("MeltTreshold");
     float semitonesToSubtract = *apvts.getRawParameterValue("SemitonesToSubtract");
     float semitonesToStop = *apvts.getRawParameterValue("SemitonesToStop");
+    float smoothMelt = *apvts.getRawParameterValue("SmoothMelt");
 
     //// Params de pitch shifting POR AHORA HARCODEADOS
     //int inFftSizeChoice = *apvts.getRawParameterValue("FftSizeChoice");
@@ -204,6 +209,7 @@ void MeltDelayAudioProcessor::updateParameters()
     //delayCircBuffer.setInitialPitch(initialPitch);
     delayCircBuffer.setSemitonesToSubtract(semitonesToSubtract);
     delayCircBuffer.setSemitonesToStop(semitonesToStop);
+    delayCircBuffer.setSmoothMelt(smoothMelt);
 
     //Sets de params de pitch shift dentro de delayCircBuffer
         //delayCircBuffer.

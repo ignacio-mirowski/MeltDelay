@@ -26,6 +26,7 @@ public:
     void setSemitonesToSubtract(float inSemitonesToSubtract);
     void setSemitonesToStop(float inSemitonesToStop);
     void setMeltTreshold(float inMeltThreshold);
+    void setSmoothMelt(float inSmoothMelt);
 
     //void process(juce::AudioBuffer<float>& buffer);
     void prepare(double theSampleRate, juce::dsp::ProcessSpec spec);

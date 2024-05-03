@@ -18,7 +18,7 @@ PitchShift::~PitchShift() {}
 
 void PitchShift::prepare(juce::dsp::ProcessSpec& spec)
 {
-    const double smoothTime = 1e-3;
+    const double smoothTime = 1e-13;
     paramShift.reset(spec.sampleRate, smoothTime);
     /* paramFftSize.reset(sampleRate, smoothTime);
      paramHopSize.reset(sampleRate, smoothTime);
@@ -32,6 +32,12 @@ void PitchShift::prepare(juce::dsp::ProcessSpec& spec)
     updateWindowScaleFactor();
 
     needToResetPhases = true;
+}
+
+void PitchShift::onSmoothMeltChange(float inSmoothMelt, double sampleRate)
+{
+    const double smoothTime = static_cast<double>(inSmoothMelt);
+    paramShift.reset(sampleRate, smoothTime);
 }
 
 void PitchShift::process(juce::AudioBuffer<float>& buffer, float inSemitones)

@@ -21,6 +21,7 @@ public:
     //void onUpdateFftSizeParamChoice(int indexChoice);
     //void onUpdateHopSizeParamChoice(int indexChoice);
     //void onUpdateWindowTypeParamChoice(int indexChoice);
+    void onSmoothMeltChange(float inSmoothMelt, double sampleRate);
 
     void prepare(juce::dsp::ProcessSpec& spec);
 
