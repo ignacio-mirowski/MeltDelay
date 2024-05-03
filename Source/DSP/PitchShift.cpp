@@ -37,8 +37,8 @@ void PitchShift::prepare(juce::dsp::ProcessSpec& spec)
 void PitchShift::onSmoothMeltChange(float inSmoothMelt, double sampleRate)
 {
     const double newSmoothTime = static_cast<double>(inSmoothMelt);
-    float currentValue = paramShift.getCurrentValue();
-    paramShift.reset(currentValue, newSmoothTime);
+    //float currentValue = paramShift.getCurrentValue();
+    paramShift.reset(sampleRate, newSmoothTime);
 }
 
 void PitchShift::process(juce::AudioBuffer<float>& buffer, float inSemitones)
