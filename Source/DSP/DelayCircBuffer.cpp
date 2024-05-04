@@ -55,7 +55,11 @@ void DelayCircBuffer::setSemitonesToStop(float inSemitonesToStop)
 
 void DelayCircBuffer::setSmoothMelt(float inSmoothMelt)
 {
-    pitchShift.onSmoothMeltChange(inSmoothMelt, sampleRate);
+    if (smoothMelt != inSmoothMelt) 
+    {
+        pitchShift.onSmoothMeltChange(inSmoothMelt, sampleRate);
+        smoothMelt = inSmoothMelt;
+    }
 }
 
 

@@ -64,6 +64,7 @@ private:
     float initialPitch = 0.0f;
     bool localIsPlaying = false;
     float meltThreshold = 6.0f;
+    float smoothMelt = 0.0f;
 
     float semitonesToSubtract = 0.0f;
     float semitonesToStop = 0.0f;
