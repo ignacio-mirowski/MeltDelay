@@ -14,7 +14,7 @@
 //==============================================================================
 /**
 */
-class MeltDelayAudioProcessorEditor  : public juce::AudioProcessorEditor
+class MeltDelayAudioProcessorEditor  : public juce::AudioProcessorEditor//, public juce::Slider::Listener
 {
 public:
     MeltDelayAudioProcessorEditor (MeltDelayAudioProcessor&);
@@ -24,10 +24,21 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
 
+    void prepareSliders();
+    void prepareButtons();
+    void prepareCombobox();
+
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     MeltDelayAudioProcessor& audioProcessor;
+
+    juce::Slider timeSlider, feedbackSlider, stToSubSlider, stToStopSlider, meltThreshSlider, meltSmoothSlider, dryWetSlider; 
+    juce::Label timeLabel, feedbackLabel, stToSubLabel, stToStopLabel, meltThreshLabel, meltSmoothLabel, dryWetLabel;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> timeAttach, feedbackAttach, stToSubAttach, stToStopAttach, meltThreshAttach, meltSmoothAttach, dryWetAttach;
+
+    juce::Image pattyMeltImage;
+    juce::ImageComponent pattyMeltImageComponent;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MeltDelayAudioProcessorEditor)
 };

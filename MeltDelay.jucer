@@ -12,7 +12,10 @@
             file="Source/PluginEditor.cpp"/>
       <FILE id="UQiQxp" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
-    <GROUP id="{B83B4A41-A97A-3407-06E0-0A7E1687CA5E}" name="Assets"/>
+    <GROUP id="{B83B4A41-A97A-3407-06E0-0A7E1687CA5E}" name="Assets">
+      <FILE id="osl8uY" name="PattyAsset2.jpg" compile="0" resource="1" file="C:/Users/Iggy-casa/Desktop/PattyAsset2.jpg"/>
+      <FILE id="evXDXY" name="PattyAsset3.png" compile="0" resource="1" file="C:/Users/Iggy-casa/Desktop/PattyAsset3.png"/>
+    </GROUP>
     <GROUP id="{13B08D77-AD36-CFD0-11FB-8553B40F0267}" name="DSP">
       <FILE id="RDS9OO" name="PitchShift.cpp" compile="1" resource="0" file="Source/DSP/PitchShift.cpp"/>
       <FILE id="VeWuGR" name="PitchShift.h" compile="0" resource="0" file="Source/DSP/PitchShift.h"/>
