@@ -14,7 +14,7 @@
 //==============================================================================
 /**
 */
-class MeltDelayAudioProcessorEditor  : public juce::AudioProcessorEditor//, public juce::Slider::Listener
+class MeltDelayAudioProcessorEditor  : public juce::AudioProcessorEditor, public juce::Slider::Listener
 {
 public:
     MeltDelayAudioProcessorEditor (MeltDelayAudioProcessor&);
@@ -23,6 +23,8 @@ public:
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
+
+    void sliderValueChanged(juce::Slider*) override;
 
     void prepareSliders();
     void prepareButtons();
@@ -34,7 +36,7 @@ private:
     MeltDelayAudioProcessor& audioProcessor;
 
     juce::Slider timeSlider, feedbackSlider, stToSubSlider, stToStopSlider, meltThreshSlider, meltSmoothSlider, dryWetSlider; 
-    juce::Label timeLabel, feedbackLabel, stToSubLabel, stToStopLabel, meltThreshLabel, meltSmoothLabel, dryWetLabel;
+    juce::Label timeLabel, timeValueLabel, feedbackLabel, feedbackValueLabel, stToSubLabel, stStoSubValueLabel, stToStopLabel, stToStopValueLabel, meltThreshLabel, meltThreshValueLabel, meltSmoothLabel, meltSmoothValueLabel, dryWetLabel, dryWetValueLabel;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> timeAttach, feedbackAttach, stToSubAttach, stToStopAttach, meltThreshAttach, meltSmoothAttach, dryWetAttach;
 
     juce::Image pattyMeltImage;

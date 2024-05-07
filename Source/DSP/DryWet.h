@@ -21,5 +21,5 @@ public:
     void process(juce::AudioBuffer<float>& dryBuffer, juce::AudioBuffer<float>& wetBuffer);
 
 private:
-    float dryWetValue;
+    float dryWetValue = 50.0f;
 };

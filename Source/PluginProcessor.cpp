@@ -40,7 +40,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout MeltDelayAudioProcessor::cre
     parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ "Time", 1 }, "Time", 0.1f, 0.9f, 0.25f));
     parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ "Feedback", 1 }, "Feedback", 0.1f, 0.9f, 0.25f));
     
-    parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ "MeltTreshold", 1 }, "MeltTreshold", -300.0f, 6.0f, -24.0f));
+    parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ "MeltTreshold", 1 }, "MeltTreshold", -100.0f, 6.0f, 6.0f));
 
     //parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("InitialPitch", 1), "InitialPitch",
     //    juce::NormalisableRange<float>(-12.0f, 0.0f, 1.0f, 1.0f),
@@ -51,7 +51,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout MeltDelayAudioProcessor::cre
         1.0f, "st", juce::AudioProcessorParameter::genericParameter, nullptr, nullptr));
 
     parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("SemitonesToStop", 1), "SemitonesToStop",
-        juce::NormalisableRange<float>(-120.0f, -1.0f, 1.0f, 1.0f),
+        juce::NormalisableRange<float>(-72.0f, -1.0f, 1.0f, 1.0f),
         -12.0f, "st", juce::AudioProcessorParameter::genericParameter, nullptr, nullptr));
 
     parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("SmoothMelt", 1), "SmoothMelt",
@@ -266,8 +266,8 @@ bool MeltDelayAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* MeltDelayAudioProcessor::createEditor()
 {
-    return new juce::GenericAudioProcessorEditor(*this);
-    //return new MeltDelayAudioProcessorEditor (*this);
+    //return new juce::GenericAudioProcessorEditor(*this);
+    return new MeltDelayAudioProcessorEditor (*this);
 }
 
 //==============================================================================

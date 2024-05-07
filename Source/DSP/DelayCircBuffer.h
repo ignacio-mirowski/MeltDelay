@@ -42,8 +42,8 @@ public:
     void EvaluateCurrentTime(bool isPlaying, float circBufferRmsLevel, float delayInSamples, float bufferRmsLevel);
 
 private:
-    float timeValue{ 0.0f };
-    float feedbackValue{ 0.9f };
+    float timeValue{ 0.25f };
+    float feedbackValue{ 0.25f };
     float sampleRate{ 0.0f };
     int timeStyle{ 0 };
     int timeChoice{ 0 };
@@ -64,8 +64,8 @@ private:
     float initialPitch = 0.0f;
     bool localIsPlaying = false;
     float meltThreshold = 6.0f;
-    float smoothMelt = 0.0f;
+    float smoothMelt = 1e-13f;
 
-    float semitonesToSubtract = 0.0f;
-    float semitonesToStop = 0.0f;
+    float semitonesToSubtract = 1.0f;
+    float semitonesToStop = -12.0f;
 };
