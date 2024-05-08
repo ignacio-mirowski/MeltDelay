@@ -150,6 +150,7 @@ void MeltDelayAudioProcessorEditor::prepareSliders()
     //TimeChoice
     timeChoiceSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     timeChoiceSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    timeChoiceSlider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colours::orange);
     addAndMakeVisible(timeChoiceSlider);
     timeChoiceSlider.addListener(this);
 
@@ -172,6 +173,7 @@ void MeltDelayAudioProcessorEditor::prepareSliders()
     // Time
     timeSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     timeSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    timeSlider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colours::orange);
     addAndMakeVisible(timeSlider);
     timeSlider.addListener(this);
 
@@ -192,6 +194,7 @@ void MeltDelayAudioProcessorEditor::prepareSliders()
     // Feedback
     feedbackSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     feedbackSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    feedbackSlider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colours::orange);
     addAndMakeVisible(feedbackSlider);
     feedbackSlider.addListener(this);
 
@@ -211,6 +214,7 @@ void MeltDelayAudioProcessorEditor::prepareSliders()
     // St to substract
     stToSubSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     stToSubSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    stToSubSlider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colours::orange);
     addAndMakeVisible(stToSubSlider);
     stToSubSlider.addListener(this);
 
@@ -230,6 +234,7 @@ void MeltDelayAudioProcessorEditor::prepareSliders()
     // St to stop
     stToStopSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     stToStopSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    stToStopSlider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colours::orange);
     addAndMakeVisible(stToStopSlider);
     stToStopSlider.addListener(this);
 
@@ -249,6 +254,7 @@ void MeltDelayAudioProcessorEditor::prepareSliders()
     // Melt threshold
     meltThreshSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     meltThreshSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    meltThreshSlider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colours::orange);
     addAndMakeVisible(meltThreshSlider);
     meltThreshSlider.addListener(this);
 
@@ -268,6 +274,7 @@ void MeltDelayAudioProcessorEditor::prepareSliders()
     // Melt Smoother
     meltSmoothSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     meltSmoothSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    meltSmoothSlider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colours::orange);
     addAndMakeVisible(meltSmoothSlider);
     meltSmoothSlider.addListener(this);
 
@@ -287,6 +294,7 @@ void MeltDelayAudioProcessorEditor::prepareSliders()
     // DryWet
     dryWetSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     dryWetSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    dryWetSlider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colours::orange);
     addAndMakeVisible(dryWetSlider);
     dryWetSlider.addListener(this);
 
