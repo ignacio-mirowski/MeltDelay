@@ -35,7 +35,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout MeltDelayAudioProcessor::cre
 
     //auto pi = juce::MathConstants<float>::pi;
     parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ "DryWet", 1 }, "DryWet", 0.0f, 100.0f, 50.0f));
-    parameters.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{ "TimeStyle", 1 }, "TimeChoice", juce::StringArray("ms", "rythm"), 0));
+    parameters.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{ "TimeStyle", 1 }, "TimeStyle", juce::StringArray("ms", "bpm"), 0));
     parameters.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{ "TimeChoice", 1 }, "TimeChoice", juce::StringArray("1/16", "1/8", "1/4", "1/2", "1/1"), 0));
     parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ "Time", 1 }, "Time", 0.1f, 0.9f, 0.25f));
     parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ "Feedback", 1 }, "Feedback", 0.1f, 0.9f, 0.25f));

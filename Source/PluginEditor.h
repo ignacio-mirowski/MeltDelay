@@ -14,7 +14,7 @@
 //==============================================================================
 /**
 */
-class MeltDelayAudioProcessorEditor  : public juce::AudioProcessorEditor, public juce::Slider::Listener
+class MeltDelayAudioProcessorEditor  : public juce::AudioProcessorEditor, public juce::Slider::Listener, public juce::Button::Listener
 {
 public:
     MeltDelayAudioProcessorEditor (MeltDelayAudioProcessor&);
@@ -25,10 +25,11 @@ public:
     void resized() override;
 
     void sliderValueChanged(juce::Slider*) override;
+    void buttonClicked(juce::Button*) override;
 
     void prepareSliders();
     void prepareButtons();
-    void prepareCombobox();
+    //void prepareCombobox();
 
 private:
     // This reference is provided as a quick way for your editor to
@@ -38,6 +39,12 @@ private:
     juce::Slider timeSlider, feedbackSlider, stToSubSlider, stToStopSlider, meltThreshSlider, meltSmoothSlider, dryWetSlider; 
     juce::Label timeLabel, timeValueLabel, feedbackLabel, feedbackValueLabel, stToSubLabel, stStoSubValueLabel, stToStopLabel, stToStopValueLabel, meltThreshLabel, meltThreshValueLabel, meltSmoothLabel, meltSmoothValueLabel, dryWetLabel, dryWetValueLabel;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> timeAttach, feedbackAttach, stToSubAttach, stToStopAttach, meltThreshAttach, meltSmoothAttach, dryWetAttach;
+
+    juce::ToggleButton msButton;
+    juce::ToggleButton bpmButton;
+    
+    juce::Slider timeChoiceSlider; juce::Label timeChoiceLabel, timeChoiceValueLabel;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> timeChoiceAttach;
 
     juce::Image pattyMeltImage;
     juce::ImageComponent pattyMeltImageComponent;

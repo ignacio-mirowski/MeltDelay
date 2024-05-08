@@ -18,7 +18,7 @@ MeltDelayAudioProcessorEditor::MeltDelayAudioProcessorEditor (MeltDelayAudioProc
     addAndMakeVisible(pattyMeltImageComponent);
 
     prepareSliders();
-
+    prepareButtons();
 
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
@@ -36,6 +36,14 @@ void MeltDelayAudioProcessorEditor::sliderValueChanged(juce::Slider* s)
     //{
     //    //log o algo
     //    //DBG(volumeSlider.getValue());
+    //}
+}
+
+void MeltDelayAudioProcessorEditor::buttonClicked(juce::Button* b)
+{
+    //if (b == &lfoOnOffButton)
+    //{
+    //    //log o algo
     //}
 }
 
@@ -59,8 +67,14 @@ void MeltDelayAudioProcessorEditor::resized()
     // subcomponents in your editor..
     pattyMeltImageComponent.setBounds(200, 25, 200, 200);
 
+    msButton.setBounds(50, 135, 60, 60);
+    bpmButton.setBounds(104, 135, 60, 60);
+
     timeSlider.setBounds(50, 42, 105, 105);
     timeValueLabel.setBounds(77, 125, 60, 40);
+
+    timeChoiceSlider.setBounds(50, 42, 105, 105);
+    timeChoiceValueLabel.setBounds(86, 125, 60, 40);
 
     feedbackSlider.setBounds(445, 42, 105, 105);
     feedbackValueLabel.setBounds(467, 125, 60, 40);
@@ -81,8 +95,80 @@ void MeltDelayAudioProcessorEditor::resized()
     dryWetValueLabel.setBounds(510, 365, 60, 40);
 }
 
+void MeltDelayAudioProcessorEditor::prepareButtons()
+{
+    msButton.setButtonText("ms");
+    msButton.setColour(juce::ToggleButton::ColourIds::textColourId, juce::Colours::black);
+    msButton.setColour(juce::ToggleButton::ColourIds::tickColourId, juce::Colours::black);
+    msButton.setColour(juce::ToggleButton::ColourIds::tickDisabledColourId, juce::Colours::black);
+    bpmButton.setButtonText("bpm");
+    bpmButton.setColour(juce::ToggleButton::ColourIds::textColourId, juce::Colours::black);
+    bpmButton.setColour(juce::ToggleButton::ColourIds::tickColourId, juce::Colours::black);
+    bpmButton.setColour(juce::ToggleButton::ColourIds::tickDisabledColourId, juce::Colours::black);
+    msButton.setRadioGroupId(1);
+    bpmButton.setRadioGroupId(1);
+    addAndMakeVisible(msButton);
+    addAndMakeVisible(bpmButton);
+
+    auto choiceParameter = dynamic_cast<juce::AudioParameterChoice*>(audioProcessor.apvts.getParameter("TimeStyle"));
+    msButton.onClick = [this, choiceParameter]() {
+        if (msButton.getToggleState())
+        {
+            choiceParameter->beginChangeGesture();
+            choiceParameter->setValueNotifyingHost(0); // Set choice to "ms"
+            choiceParameter->endChangeGesture();
+            timeSlider.setVisible(true);
+            timeValueLabel.setVisible(true);
+            timeChoiceSlider.setVisible(false);
+            timeChoiceValueLabel.setVisible(false);
+            resized();
+        }
+    };
+    bpmButton.onClick = [this, choiceParameter]() {
+        if (bpmButton.getToggleState())
+        {
+            choiceParameter->beginChangeGesture();
+            choiceParameter->setValueNotifyingHost(1); // Set choice to "bpm"
+            choiceParameter->endChangeGesture();
+            timeSlider.setVisible(false);
+            timeValueLabel.setVisible(false);
+            timeChoiceSlider.setVisible(true);
+            timeChoiceValueLabel.setVisible(true);
+            resized();
+        }
+        };
+
+    // Set initial state based on the current choice index
+    if (choiceParameter->getIndex() == 0)
+        msButton.setToggleState(true, juce::dontSendNotification);
+    else
+        bpmButton.setToggleState(true, juce::dontSendNotification);
+}
+
 void MeltDelayAudioProcessorEditor::prepareSliders()
 {
+    //TimeChoice
+    timeChoiceSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
+    timeChoiceSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    addAndMakeVisible(timeChoiceSlider);
+    timeChoiceSlider.addListener(this);
+
+    timeChoiceValueLabel.setColour(juce::Label::ColourIds::textColourId, juce::Colours::black);
+    addAndMakeVisible(timeChoiceValueLabel);
+    auto choiceParameter = dynamic_cast<juce::AudioParameterChoice*>(audioProcessor.apvts.getParameter("TimeChoice"));
+    timeChoiceSlider.onValueChange = [this, choiceParameter] { timeChoiceValueLabel.setText(choiceParameter->choices[timeChoiceSlider.getValue()], juce::NotificationType::dontSendNotification); };
+
+    timeChoiceAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "TimeChoice", timeChoiceSlider);
+
+    timeChoiceLabel.setText("Time Choice", juce::dontSendNotification);
+    timeChoiceLabel.attachToComponent(&timeChoiceSlider, false);
+    timeChoiceLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(timeChoiceLabel);
+
+    timeChoiceSlider.setVisible(false); //default value porque depende del checkbox
+
+    timeChoiceLabel.setColour(juce::Label::ColourIds::textColourId, juce::Colours::black);
+
     // Time
     timeSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     timeSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
