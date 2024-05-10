@@ -31,6 +31,10 @@ public:
     void prepareButtons();
     //void prepareCombobox();
 
+    void onBpmButtonClick();
+    void onMsButtonClick();
+
+
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.

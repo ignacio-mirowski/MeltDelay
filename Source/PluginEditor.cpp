@@ -111,38 +111,58 @@ void MeltDelayAudioProcessorEditor::prepareButtons()
     addAndMakeVisible(bpmButton);
 
     auto choiceParameter = dynamic_cast<juce::AudioParameterChoice*>(audioProcessor.apvts.getParameter("TimeStyle"));
-    msButton.onClick = [this, choiceParameter]() {
-        if (msButton.getToggleState())
-        {
-            choiceParameter->beginChangeGesture();
-            choiceParameter->setValueNotifyingHost(0); // Set choice to "ms"
-            choiceParameter->endChangeGesture();
-            timeSlider.setVisible(true);
-            timeValueLabel.setVisible(true);
-            timeChoiceSlider.setVisible(false);
-            timeChoiceValueLabel.setVisible(false);
-            resized();
-        }
+    msButton.onClick = [this]() {
+        onMsButtonClick();
     };
-    bpmButton.onClick = [this, choiceParameter]() {
-        if (bpmButton.getToggleState())
-        {
-            choiceParameter->beginChangeGesture();
-            choiceParameter->setValueNotifyingHost(1); // Set choice to "bpm"
-            choiceParameter->endChangeGesture();
-            timeSlider.setVisible(false);
-            timeValueLabel.setVisible(false);
-            timeChoiceSlider.setVisible(true);
-            timeChoiceValueLabel.setVisible(true);
-            resized();
-        }
-        };
+    bpmButton.onClick = [this]() {
+        onBpmButtonClick();
+    };
 
     // Set initial state based on the current choice index
-    if (choiceParameter->getIndex() == 0)
+    if (choiceParameter->getIndex() == 0) 
+    {
         msButton.setToggleState(true, juce::dontSendNotification);
-    else
+        onMsButtonClick();
+    }
+    else 
+    {
         bpmButton.setToggleState(true, juce::dontSendNotification);
+        onBpmButtonClick();
+    }
+}
+
+void MeltDelayAudioProcessorEditor::onMsButtonClick()
+{
+    auto choiceParameter = dynamic_cast<juce::AudioParameterChoice*>(audioProcessor.apvts.getParameter("TimeStyle"));
+
+    if (msButton.getToggleState())
+    {
+        choiceParameter->beginChangeGesture();
+        choiceParameter->setValueNotifyingHost(0); // Set choice to "ms"
+        choiceParameter->endChangeGesture();
+        timeSlider.setVisible(true);
+        timeValueLabel.setVisible(true);
+        timeChoiceSlider.setVisible(false);
+        timeChoiceValueLabel.setVisible(false);
+        resized();
+    }
+}
+
+void MeltDelayAudioProcessorEditor::onBpmButtonClick()
+{
+    auto choiceParameter = dynamic_cast<juce::AudioParameterChoice*>(audioProcessor.apvts.getParameter("TimeStyle"));
+
+    if (bpmButton.getToggleState())
+    {
+        choiceParameter->beginChangeGesture();
+        choiceParameter->setValueNotifyingHost(1); // Set choice to "bpm"
+        choiceParameter->endChangeGesture();
+        timeSlider.setVisible(false);
+        timeValueLabel.setVisible(false);
+        timeChoiceSlider.setVisible(true);
+        timeChoiceValueLabel.setVisible(true);
+        resized();
+    }
 }
 
 void MeltDelayAudioProcessorEditor::prepareSliders()
@@ -155,8 +175,10 @@ void MeltDelayAudioProcessorEditor::prepareSliders()
     timeChoiceSlider.addListener(this);
 
     timeChoiceValueLabel.setColour(juce::Label::ColourIds::textColourId, juce::Colours::black);
-    addAndMakeVisible(timeChoiceValueLabel);
     auto choiceParameter = dynamic_cast<juce::AudioParameterChoice*>(audioProcessor.apvts.getParameter("TimeChoice"));
+    //Set initial value for "value" label
+    timeChoiceValueLabel.setText(choiceParameter->choices[timeChoiceSlider.getValue()], juce::NotificationType::dontSendNotification);
+    addAndMakeVisible(timeChoiceValueLabel);
     timeChoiceSlider.onValueChange = [this, choiceParameter] { timeChoiceValueLabel.setText(choiceParameter->choices[timeChoiceSlider.getValue()], juce::NotificationType::dontSendNotification); };
 
     timeChoiceAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "TimeChoice", timeChoiceSlider);
@@ -165,8 +187,6 @@ void MeltDelayAudioProcessorEditor::prepareSliders()
     timeChoiceLabel.attachToComponent(&timeChoiceSlider, false);
     timeChoiceLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(timeChoiceLabel);
-
-    timeChoiceSlider.setVisible(false); //default value porque depende del checkbox
 
     timeChoiceLabel.setColour(juce::Label::ColourIds::textColourId, juce::Colours::black);
 
@@ -178,6 +198,8 @@ void MeltDelayAudioProcessorEditor::prepareSliders()
     timeSlider.addListener(this);
 
     timeValueLabel.setColour(juce::Label::ColourIds::textColourId, juce::Colours::black);
+    //Set initial value for "value" label
+    timeValueLabel.setText(juce::String(timeSlider.getValue()) + " ms", juce::NotificationType::dontSendNotification);
     addAndMakeVisible(timeValueLabel);
     timeSlider.onValueChange = [this] { timeValueLabel.setText(juce::String(timeSlider.getValue()) + " ms", juce::NotificationType::dontSendNotification); };
 
@@ -199,8 +221,9 @@ void MeltDelayAudioProcessorEditor::prepareSliders()
     feedbackSlider.addListener(this);
 
     feedbackValueLabel.setColour(juce::Label::ColourIds::textColourId, juce::Colours::black);
+    feedbackValueLabel.setText(juce::String(feedbackSlider.getValue()), juce::NotificationType::dontSendNotification);
     addAndMakeVisible(feedbackValueLabel);
-    feedbackSlider.onValueChange = [this] { feedbackValueLabel.setText(juce::String(feedbackSlider.getValue()) + " ms", juce::NotificationType::dontSendNotification); };
+    feedbackSlider.onValueChange = [this] { feedbackValueLabel.setText(juce::String(feedbackSlider.getValue()), juce::NotificationType::dontSendNotification); };
 
     feedbackAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "Feedback", feedbackSlider);
 
@@ -219,6 +242,7 @@ void MeltDelayAudioProcessorEditor::prepareSliders()
     stToSubSlider.addListener(this);
 
     stStoSubValueLabel.setColour(juce::Label::ColourIds::textColourId, juce::Colours::black);
+    stStoSubValueLabel.setText(juce::String(stToSubSlider.getValue()) + " st", juce::NotificationType::dontSendNotification);
     addAndMakeVisible(stStoSubValueLabel);
     stToSubSlider.onValueChange = [this] { stStoSubValueLabel.setText(juce::String(stToSubSlider.getValue()) + " st", juce::NotificationType::dontSendNotification); };
 
@@ -239,6 +263,7 @@ void MeltDelayAudioProcessorEditor::prepareSliders()
     stToStopSlider.addListener(this);
 
     stToStopValueLabel.setColour(juce::Label::ColourIds::textColourId, juce::Colours::black);
+    stToStopValueLabel.setText(juce::String(stToStopSlider.getValue()) + " st", juce::NotificationType::dontSendNotification);
     addAndMakeVisible(stToStopValueLabel);
     stToStopSlider.onValueChange = [this] { stToStopValueLabel.setText(juce::String(stToStopSlider.getValue()) + " st", juce::NotificationType::dontSendNotification); };
 
@@ -259,6 +284,7 @@ void MeltDelayAudioProcessorEditor::prepareSliders()
     meltThreshSlider.addListener(this);
 
     meltThreshValueLabel.setColour(juce::Label::ColourIds::textColourId, juce::Colours::black);
+    meltThreshValueLabel.setText(juce::String(meltThreshSlider.getValue()) + " db", juce::NotificationType::dontSendNotification);
     addAndMakeVisible(meltThreshValueLabel);
     meltThreshSlider.onValueChange = [this] { meltThreshValueLabel.setText(juce::String(meltThreshSlider.getValue()) + " db", juce::NotificationType::dontSendNotification); };
 
@@ -279,8 +305,9 @@ void MeltDelayAudioProcessorEditor::prepareSliders()
     meltSmoothSlider.addListener(this);
 
     meltSmoothValueLabel.setColour(juce::Label::ColourIds::textColourId, juce::Colours::black);
+    meltSmoothValueLabel.setText(juce::String(meltSmoothSlider.getValue()), juce::NotificationType::dontSendNotification);
     addAndMakeVisible(meltSmoothValueLabel);
-    meltSmoothSlider.onValueChange = [this] { meltSmoothValueLabel.setText(juce::String(meltSmoothSlider.getValue()) + "", juce::NotificationType::dontSendNotification); };
+    meltSmoothSlider.onValueChange = [this] { meltSmoothValueLabel.setText(juce::String(meltSmoothSlider.getValue()), juce::NotificationType::dontSendNotification); };
 
     meltSmoothAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "SmoothMelt", meltSmoothSlider);
 
@@ -299,6 +326,7 @@ void MeltDelayAudioProcessorEditor::prepareSliders()
     dryWetSlider.addListener(this);
 
     dryWetValueLabel.setColour(juce::Label::ColourIds::textColourId, juce::Colours::black);
+    dryWetValueLabel.setText(juce::String(dryWetSlider.getValue()) + " %", juce::NotificationType::dontSendNotification);
     addAndMakeVisible(dryWetValueLabel);
     dryWetSlider.onValueChange = [this] { dryWetValueLabel.setText(juce::String(dryWetSlider.getValue()) + " %", juce::NotificationType::dontSendNotification); };
 
