@@ -204,7 +204,8 @@ void DelayCircBuffer::process(juce::AudioBuffer<float>& buffer, juce::AudioPlayH
     playHead->getCurrentPosition(currentPosition);
     
     EvaluateCurrentTime(currentPosition.isPlaying, circularAudioBuffer.getRMSLevel(0, 0, circularAudioBuffer.getNumSamples()), timeSmooth[0] * sampleRate, buffer.getRMSLevel(0, 0, buffer.getNumSamples()));
-    pitchShift.process(buffer, currentPitchSemitones);
+    if (currentPitchSemitones < 0) // TODO: ESTO LOHAGO para que con st to subtract = 0 suene clean, PERO, esta generando que si vuelvo a 0 sin dejar de estar en "play" no vuelva nunca a dejar de pitchear. Tengo que fixear eso.
+        pitchShift.process(buffer, currentPitchSemitones);
 
 }
 
