@@ -77,7 +77,7 @@ void MeltDelayAudioProcessorEditor::resized()
     timeChoiceValueLabel.setBounds(86, 125, 60, 40);
 
     feedbackSlider.setBounds(445, 42, 105, 105);
-    feedbackValueLabel.setBounds(467, 125, 60, 40);
+    feedbackValueLabel.setBounds(479, 125, 60, 40);
 
     stToSubSlider.setBounds(112.5, 245, 75, 75);
     stStoSubValueLabel.setBounds(131, 299, 60, 40);
@@ -86,7 +86,7 @@ void MeltDelayAudioProcessorEditor::resized()
     stToStopValueLabel.setBounds(227, 299, 60, 40);
 
     meltThreshSlider.setBounds(312.5, 245, 75, 75); // +100
-    meltThreshValueLabel.setBounds(321, 299, 60, 40);
+    meltThreshValueLabel.setBounds(329, 299, 60, 40);
 
     meltSmoothSlider.setBounds(412.5, 245, 75, 75); // +100
     meltSmoothValueLabel.setBounds(427, 299, 60, 40);
@@ -284,9 +284,11 @@ void MeltDelayAudioProcessorEditor::prepareSliders()
     meltThreshSlider.addListener(this);
 
     meltThreshValueLabel.setColour(juce::Label::ColourIds::textColourId, juce::Colours::black);
-    meltThreshValueLabel.setText(juce::String(meltThreshSlider.getValue()) + " db", juce::NotificationType::dontSendNotification);
+    //meltThreshValueLabel.setText(juce::String(meltThreshSlider.getValue()) + " db", juce::NotificationType::dontSendNotification);
+    meltThreshValueLabel.setText(juce::String(juce::jmap((float)meltThreshSlider.getValue(), -100.0f, 6.0f, 0.0f, 100.0f)) + " %", juce::NotificationType::dontSendNotification);
+
     addAndMakeVisible(meltThreshValueLabel);
-    meltThreshSlider.onValueChange = [this] { meltThreshValueLabel.setText(juce::String(meltThreshSlider.getValue()) + " db", juce::NotificationType::dontSendNotification); };
+    meltThreshSlider.onValueChange = [this] { meltThreshValueLabel.setText(juce::String(juce::jmap((float)meltThreshSlider.getValue(), -100.0f, 6.0f, 0.0f, 100.0f)) + " %", juce::NotificationType::dontSendNotification); };
 
     meltThreshAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "MeltTreshold", meltThreshSlider);
 
@@ -305,9 +307,9 @@ void MeltDelayAudioProcessorEditor::prepareSliders()
     meltSmoothSlider.addListener(this);
 
     meltSmoothValueLabel.setColour(juce::Label::ColourIds::textColourId, juce::Colours::black);
-    meltSmoothValueLabel.setText(juce::String(meltSmoothSlider.getValue()), juce::NotificationType::dontSendNotification);
+    meltSmoothValueLabel.setText(juce::String(juce::jmap((float)meltSmoothSlider.getValue(), 1e-13f, 1e-3f, 0.0f, 100.0f)) + " %", juce::NotificationType::dontSendNotification); //esto en la inicializacion anda mal por algun motivo
+    meltSmoothSlider.onValueChange = [this] { meltSmoothValueLabel.setText(juce::String(juce::jmap((float)meltSmoothSlider.getValue(), 1e-13f, 1e-3f, 0.0f, 100.0f)) + " %", juce::NotificationType::dontSendNotification); };
     addAndMakeVisible(meltSmoothValueLabel);
-    meltSmoothSlider.onValueChange = [this] { meltSmoothValueLabel.setText(juce::String(meltSmoothSlider.getValue()), juce::NotificationType::dontSendNotification); };
 
     meltSmoothAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "SmoothMelt", meltSmoothSlider);
 
