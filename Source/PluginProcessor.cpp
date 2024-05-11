@@ -142,10 +142,7 @@ void MeltDelayAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlo
     spec.numChannels = getTotalNumOutputChannels();
 
     //delayJuceDSP.prepare(spec);
-    delayCircBuffer.prepare(sampleRate, spec);
-
-    //FOR TEST, ENREALDIAD VA ADENTRO DEL DELAYCIRC (Quizas no!)
-    //pitchShift.prepare(spec);
+    delayCircBuffer.prepare(sampleRate, spec); // --> PitchShift adentro de delayCirc
 }
 
 void MeltDelayAudioProcessor::releaseResources()
@@ -235,7 +232,7 @@ void MeltDelayAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juc
     juce::AudioBuffer<float> delayBuffer;
 
     dryBuffer.makeCopyOf(buffer);
-    dryBufferAlwaysOn.makeCopyOf(buffer);
+    dryBufferAlwaysOn.makeCopyOf(buffer); // Hack para que no se escuche todo con pitch shifting al activar el delay, solo se pitcheen repeticiones
     delayBuffer.makeCopyOf(buffer);
 
     // DryWet al 100% para que solo escuchemos el delay

@@ -191,6 +191,7 @@ void DelayCircBuffer::process(juce::AudioBuffer<float>& buffer, juce::AudioPlayH
                 float outWithDryWet = (currentSample * (1 - 1.0f)) + (outputCircularBuffer * 1.0f);
 
                 // En la salida quiero lo que sea que este sonando ahora + lo que sea que a lo que este apuntando el reader pointer en el circular buffer (sin meter feedback porque ya lo puse cuando escribi en el circular buffer!)
+                //  -> Esto lo cambie, porque quiero solo el output del circular buffer aca, el dryBufferAlwaysOn se va a encargar de que "suene lo que suena actualmente"
                 buffer.setSample(channel, i, outWithDryWet);//currentSample + outputCircularBuffer);
             }
 
