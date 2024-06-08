@@ -33,7 +33,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout MeltDelayAudioProcessor::cre
 {
     juce::AudioProcessorValueTreeState::ParameterLayout parameters;
 
-    //auto pi = juce::MathConstants<float>::pi;
     parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ "DryWet", 1 }, "DryWet", 0.0f, 100.0f, 50.0f));
     parameters.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{ "TimeStyle", 1 }, "TimeStyle", juce::StringArray("ms", "bpm"), 0));
     parameters.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{ "TimeChoice", 1 }, "TimeChoice", juce::StringArray("1/16", "1/8", "1/4", "1/2", "1/1"), 0));
@@ -41,10 +40,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout MeltDelayAudioProcessor::cre
     parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ "Feedback", 1 }, "Feedback", 0.1f, 0.9f, 0.25f));
     
     parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ "MeltTreshold", 1 }, "MeltTreshold", -100.0f, 6.0f, 6.0f));
-
-    //parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("InitialPitch", 1), "InitialPitch",
-    //    juce::NormalisableRange<float>(-12.0f, 0.0f, 1.0f, 1.0f),
-    //    -12.0f, "st", juce::AudioProcessorParameter::genericParameter, nullptr, nullptr));
 
     parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("SemitonesToSubtract", 1), "SemitonesToSubtract",
         juce::NormalisableRange<float>(0.0f, 12.0f, 1.0f, 1.0f),
@@ -58,15 +53,16 @@ juce::AudioProcessorValueTreeState::ParameterLayout MeltDelayAudioProcessor::cre
         juce::NormalisableRange<float>(1e-13f, 1e-3f, 1e-10f, 1.0f),
         1e-13f, "", juce::AudioProcessorParameter::genericParameter, nullptr, nullptr));
 
-    ///** Pitch */
-    //parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("Pitch", 1), "Pitch",
-    //    juce::NormalisableRange<float>(-12.0f, 12.0f, 0.01f, 1.0f),
-    //    -12.0f, "st", juce::AudioProcessorParameter::genericParameter, nullptr, nullptr));
 
-    //parameters.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{ "FftSizeChoice", 1 }, "FftSizeChoice", fftSizeItemsUI, fftSize512));
-    //parameters.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{ "HopSizeChoice", 1 }, "HopSizeChoice", hopSizeItemsUI, hopSize8));
-    //parameters.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{ "WindowTypeChoice", 1 }, "WindowTypeChoice", windowTypeItemsUI, windowTypeHann));
+    //RUBBER BAND TEST
+    parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ "RBOctaves", 1 }, "RBOctaves", -2.0f, 2.0f, 0.0f));
+    parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ "RBSemitones", 1 }, "RBSemitones", -12.0f, 12.0f, 0.0f));
+    parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ "RBCents", 1 }, "RBCents", -100.0f, 100.0f, 0.0f));
+    parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ "RBWetDry", 1 }, "RBWetDry", 0.0f, 1.0f, 0));
+    parameters.add(std::make_unique<juce::AudioParameterInt>(juce::ParameterID{ "RBCrispness", 1 }, "RBCrispness", 0,3,0));
+    parameters.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID{ "format", 1 }, "format", false));
 
+    //
 
     return parameters;
 }
@@ -143,6 +139,8 @@ void MeltDelayAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlo
 
     //delayJuceDSP.prepare(spec);
     delayCircBuffer.prepare(sampleRate, spec); // --> PitchShift adentro de delayCirc
+
+    pitchShiftRubberBand.prepare(sampleRate, spec);
 }
 
 void MeltDelayAudioProcessor::releaseResources()
@@ -190,6 +188,13 @@ void MeltDelayAudioProcessor::updateParameters()
     float semitonesToStop = *apvts.getRawParameterValue("SemitonesToStop");
     float smoothMelt = *apvts.getRawParameterValue("SmoothMelt");
 
+    float rbSemitones = *apvts.getRawParameterValue("RBSemitones");
+    float rbOctaves = *apvts.getRawParameterValue("RBOctaves");
+    float rbCents = *apvts.getRawParameterValue("RBCents");
+    float rbWetDry = *apvts.getRawParameterValue("RBWetDry");
+    float rbCrisp = *apvts.getRawParameterValue("RBCrispness");
+    bool rbFormat = *apvts.getRawParameterValue("format");
+
     //// Params de pitch shifting POR AHORA HARCODEADOS
     //int inFftSizeChoice = *apvts.getRawParameterValue("FftSizeChoice");
     //int inHopSizeChoice = *apvts.getRawParameterValue("HopSizeChoice");
@@ -208,6 +213,12 @@ void MeltDelayAudioProcessor::updateParameters()
     delayCircBuffer.setSemitonesToStop(semitonesToStop);
     delayCircBuffer.setSmoothMelt(smoothMelt);
 
+    pitchShiftRubberBand.setSemitones(rbSemitones);
+    //pitchShiftRubberBand.setSemitones(rbSemitones);
+    //pitchShiftRubberBand.setSemitones(rbSemitones);
+    //pitchShiftRubberBand.setSemitones(rbSemitones);
+    //pitchShiftRubberBand.setSemitones(rbSemitones);
+
     //Sets de params de pitch shift dentro de delayCircBuffer
         //delayCircBuffer.
     //
@@ -216,32 +227,35 @@ void MeltDelayAudioProcessor::updateParameters()
 
 void MeltDelayAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
-    // SOLO REPETICIONES
+    //// SOLO REPETICIONES
+    ////updateParameters();
+
+    ////dryBuffer.makeCopyOf(buffer);
+
+    ////delayCircBuffer.process(buffer, getPlayHead());
+
+    ////dryWet.process(dryBuffer, buffer);
+    ////    
+    //
+    //// CON DRY SIEMPRE ON + REPETCIONES SOLAS
     //updateParameters();
 
-    //dryBuffer.makeCopyOf(buffer);
+    //juce::AudioBuffer<float> delayBuffer;
 
-    //delayCircBuffer.process(buffer, getPlayHead());
+    //dryBuffer.makeCopyOf(buffer);
+    //dryBufferAlwaysOn.makeCopyOf(buffer); // Hack para que no se escuche todo con pitch shifting al activar el delay, solo se pitcheen repeticiones
+    //delayBuffer.makeCopyOf(buffer);
+
+    //// DryWet al 100% para que solo escuchemos el delay
+    //delayCircBuffer.process(delayBuffer, getPlayHead());
+
+    ////Simplemente es sumar sample por sample de ambos buffers y sustituir los valores en el buffer original
+    //joinBuffers(buffer, dryBufferAlwaysOn, delayBuffer);
 
     //dryWet.process(dryBuffer, buffer);
-    //    
-    
-    // CON DRY SIEMPRE ON + REPETCIONES SOLAS
+
     updateParameters();
-
-    juce::AudioBuffer<float> delayBuffer;
-
-    dryBuffer.makeCopyOf(buffer);
-    dryBufferAlwaysOn.makeCopyOf(buffer); // Hack para que no se escuche todo con pitch shifting al activar el delay, solo se pitcheen repeticiones
-    delayBuffer.makeCopyOf(buffer);
-
-    // DryWet al 100% para que solo escuchemos el delay
-    delayCircBuffer.process(delayBuffer, getPlayHead());
-
-    //Simplemente es sumar sample por sample de ambos buffers y sustituir los valores en el buffer original
-    joinBuffers(buffer, dryBufferAlwaysOn, delayBuffer);
-
-    dryWet.process(dryBuffer, buffer);
+    pitchShiftRubberBand.process(buffer);
 }
 
 void MeltDelayAudioProcessor::joinBuffers(juce::AudioBuffer<float> outputBuffer, juce::AudioBuffer<float> buffer1, juce::AudioBuffer<float> buffer2)
@@ -263,8 +277,8 @@ bool MeltDelayAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* MeltDelayAudioProcessor::createEditor()
 {
-    //return new juce::GenericAudioProcessorEditor(*this);
-    return new MeltDelayAudioProcessorEditor (*this);
+    return new juce::GenericAudioProcessorEditor(*this);
+    //return new MeltDelayAudioProcessorEditor (*this);
 }
 
 //==============================================================================

@@ -13,6 +13,7 @@
 #include "DSP/DelayCircBuffer.h"
 #include "DSP/DryWet.h"
 #include "DSP/PitchShift.h"
+#include "DSP/PitchShiftRubberBand.h"
 
 //==============================================================================
 /**
@@ -69,63 +70,10 @@ private:
     juce::AudioBuffer<float> dryBuffer;
     //Este va para SIEMPRE mandar la señal dry mezclada con todo el efecto, asi solo las repeticiones tiene pitchshift
     juce::AudioBuffer<float> dryBufferAlwaysOn;
-
     DelayCircBuffer delayCircBuffer;
 
-    //FOR TEST, ENREALDIAD VA ADENTRO DEL DELAYCIRC
-    PitchShift pitchShift;
+    PitchShiftRubberBand pitchShiftRubberBand;    
 
-
-    // Params para PitchShift
-    juce::StringArray fftSizeItemsUI = {
-        "32",
-        "64",
-        "128",
-        "256",
-        "512",
-        "1024",
-        "2048",
-        "4096",
-        "8192"
-    };
-
-    enum fftSizeIndex {
-        fftSize32 = 0,
-        fftSize64,
-        fftSize128,
-        fftSize256,
-        fftSize512,
-        fftSize1024,
-        fftSize2048,
-        fftSize4096,
-        fftSize8192,
-    };
-
-    juce::StringArray hopSizeItemsUI = {
-        "1/2 Window",
-        "1/4 Window",
-        "1/8 Window",
-    };
-
-    enum hopSizeIndex {
-        hopSize2 = 0,
-        hopSize4,
-        hopSize8,
-    };
-
-    //======================================
-
-    juce::StringArray windowTypeItemsUI = {
-        "Bartlett",
-        "Hann",
-        "Hamming",
-    };
-
-    enum windowTypeIndex {
-        windowTypeBartlett = 0,
-        windowTypeHann,
-        windowTypeHamming,
-    };
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MeltDelayAudioProcessor)

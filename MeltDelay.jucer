@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="mdY2YN" name="MeltDelay" projectType="audioplug" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
+              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1"
+              headerPath="D:\PluginDev\Librerias\rubberband-3.3.0">
   <MAINGROUP id="oAyUTd" name="MeltDelay">
     <GROUP id="{513084B2-2B4F-5E4B-B04A-784DF148C4D5}" name="Source">
       <FILE id="raShaq" name="PluginProcessor.cpp" compile="1" resource="0"
@@ -17,6 +18,20 @@
       <FILE id="evXDXY" name="PattyAsset3.png" compile="0" resource="1" file="C:/Users/Iggy-casa/Desktop/PattyAsset3.png"/>
     </GROUP>
     <GROUP id="{13B08D77-AD36-CFD0-11FB-8553B40F0267}" name="DSP">
+      <GROUP id="{503DCE9E-6A27-443C-4AFA-969AF86BAB11}" name="RubberBandHelpers">
+        <FILE id="RrAqiI" name="RubberBandPitchShifter.h" compile="0" resource="0"
+              file="Source/DSP/RubberBandPitchShifter.h"/>
+        <FILE id="hHURXJ" name="VectorOps.h" compile="0" resource="0" file="Source/DSP/VectorOps.h"/>
+        <FILE id="FCqFri" name="SysUtils.h" compile="0" resource="0" file="Source/DSP/SysUtils.h"/>
+        <FILE id="OTwFkQ" name="Allocators.h" compile="0" resource="0" file="Source/DSP/Allocators.h"/>
+        <FILE id="iQHxAo" name="RingBuffer.h" compile="0" resource="0" file="Source/DSP/RingBuffer.h"/>
+        <FILE id="Ww6oBE" name="RubberBandPitchShifter.cpp" compile="1" resource="0"
+              file="Source/DSP/RubberBandPitchShifter.cpp"/>
+      </GROUP>
+      <FILE id="jrOO5q" name="PitchShiftRubberBand.cpp" compile="1" resource="0"
+            file="Source/DSP/PitchShiftRubberBand.cpp"/>
+      <FILE id="pgh8OK" name="PitchShiftRubberBand.h" compile="0" resource="0"
+            file="Source/DSP/PitchShiftRubberBand.h"/>
       <FILE id="RDS9OO" name="PitchShift.cpp" compile="1" resource="0" file="Source/DSP/PitchShift.cpp"/>
       <FILE id="VeWuGR" name="PitchShift.h" compile="0" resource="0" file="Source/DSP/PitchShift.h"/>
       <FILE id="LmMe31" name="DelayCircBuffer.cpp" compile="1" resource="0"
@@ -49,11 +64,13 @@
   </MODULES>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
   <EXPORTFORMATS>
-    <VS2022 targetFolder="Builds/VisualStudio2022">
+    <VS2022 targetFolder="Builds/VisualStudio2022" extraLinkerFlags="rubberband-library.lib">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" targetName="MeltDelay" enablePluginBinaryCopyStep="1"
-                       vst3BinaryLocation="D:\Vsts"/>
-        <CONFIGURATION isDebug="0" name="Release" targetName="MeltDelay"/>
+                       vst3BinaryLocation="D:\Vsts" headerPath="D:\PluginDev\Librerias\rubberband-3.3.0\rubberband"
+                       libraryPath="D:\PluginDev\Librerias\rubberband-3.3.0\otherbuilds\x64\Debug"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="MeltDelay" headerPath="D:\PluginDev\Librerias\rubberband-3.3.0\rubberband&#10;D:\PluginDev\Librerias\rubberband-3.3.0\ladspa-lv2&#10;D:\PluginDev\Librerias\rubberband-3.3.0\src&#10;D:\PluginDev\Librerias\lv2-1.18.10\lv2-1.18.10\include\lv2\core"
+                       libraryPath="D:\PluginDev\Librerias\rubberband-3.3.0\otherbuilds\x64\Debug"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_audio_basics" path="../../JUCERepo/JUCE/modules"/>
