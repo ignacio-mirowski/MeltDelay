@@ -51,13 +51,24 @@ void PitchShiftRubberBand::prepare(juce::dsp::ProcessSpec spec)
 
 void PitchShiftRubberBand::process(juce::AudioBuffer<float>& buffer, float inSemitones)
 {
-    //float octaves_value = 0.0f;
-    float semitones_value = inSemitones;
+    float semitones_value = 0.0f;
+    float octaves_value = 0.0f;
+
+    if (inSemitones < -12.0f) {
+        octaves_value = (static_cast<int>(std::floor(inSemitones / -12.0f)) * -1);
+        float remainder = std::fmod(inSemitones, -12.0f);
+        semitones_value = remainder ;
+    }
+    else {
+        semitones_value = inSemitones;
+    }
+
+    //float semitones_value = inSemitones;
     //float cents_value = 0.0f;
     //float wet_dry_value = 0.0f;
     //float crispness_value = 0.0f;
     //float format_value = 0.0f;
-    //pitchShifter->m_octaves = &octaves_value;
+    pitchShifter->m_octaves = &octaves_value;
     pitchShifter->m_semitones = &semitones_value;
     //pitchShifter->m_cents = &cents_value;
     //pitchShifter->m_wetDry = &wet_dry_value;
