@@ -78,11 +78,12 @@ void DelayCircBuffer::setSmoothMelt(float inSmoothMelt)
 //    //pitchShift.onUpdateWindowTypeParamChoice(indexChoice);
 //}
 
-void DelayCircBuffer::prepare(double theSampleRate, juce::dsp::ProcessSpec spec)
+void DelayCircBuffer::prepare(juce::dsp::ProcessSpec spec)
 {
-    sampleRate = static_cast<float>(theSampleRate);
+    sampleRate = static_cast<float>(spec.sampleRate);
     circularAudioBuffer.clear();
     pitchShift.prepare(spec);
+    pitchShiftRubberBand.prepare(spec);
 }
 
 // Implementacion de process usando array de dos dimensiones como circular buffer, en vez de un AudioBuffer
@@ -139,8 +140,7 @@ void DelayCircBuffer::prepare(double theSampleRate, juce::dsp::ProcessSpec spec)
 //    }
 //}
 
-
-void DelayCircBuffer::process(juce::AudioBuffer<float>& buffer, juce::AudioPlayHead* playHead)
+void DelayCircBuffer::process(juce::AudioBuffer<float>& buffer, juce::AudioPlayHead* playHead, PitchShiftAlgorithm algorithm)
 {
     auto outputCircularBuffer = 0.0f; // "Delayed Sample"
 
@@ -173,7 +173,7 @@ void DelayCircBuffer::process(juce::AudioBuffer<float>& buffer, juce::AudioPlayH
                     // Esta variable se podria llamar "delayedSample"
                 outputCircularBuffer = circularAudioBuffer.getSample(channel, readerPointer);
 
-                // Calculo output para que suenen ambos y tambien suene el feedback!! (TODO: ver tema drywet)
+                // Calculo output para que suenen ambos y tambien suene el feedback!! 
                 // Esto va al buffer circular en el writer pointer, asi suena de nuevo cuando el reader llegue ahi! 
                 auto outputCurrentPlusDelayedPlusFeedback = currentSample + (outputCircularBuffer * feedbackValue);
                 // Escribimos en el circular buffer, en la posiction del writer pointer el SAMPLE ACTUAL (+feedback!) de la iteracion
@@ -188,13 +188,12 @@ void DelayCircBuffer::process(juce::AudioBuffer<float>& buffer, juce::AudioPlayH
                 }
 
                 //Esto es para solo meter las repeticiones en el buffer...capaz no hace falta pensarlo como drywet creo yo..y simplemente mandar al out el outputCircularBuffer
-                float outWithDryWet = (currentSample * (1 - 1.0f)) + (outputCircularBuffer * 1.0f);
+                //float outWithDryWet = (currentSample * (1 - 1.0f)) + (outputCircularBuffer * 1.0f);
 
-                // En la salida quiero lo que sea que este sonando ahora + lo que sea que a lo que este apuntando el reader pointer en el circular buffer (sin meter feedback porque ya lo puse cuando escribi en el circular buffer!)
+                // [OUTDATED] - En la salida quiero lo que sea que este sonando ahora + lo que sea que a lo que este apuntando el reader pointer en el circular buffer (sin meter feedback porque ya lo puse cuando escribi en el circular buffer!)
                 //  -> Esto lo cambie, porque quiero solo el output del circular buffer aca, el dryBufferAlwaysOn se va a encargar de que "suene lo que suena actualmente"
-                buffer.setSample(channel, i, outWithDryWet);//currentSample + outputCircularBuffer);
+                buffer.setSample(channel, i, outputCircularBuffer);//currentSample + outputCircularBuffer);
             }
-
         }
     }
 
@@ -203,12 +202,17 @@ void DelayCircBuffer::process(juce::AudioBuffer<float>& buffer, juce::AudioPlayH
 
     juce::AudioPlayHead::CurrentPositionInfo currentPosition;
     playHead->getCurrentPosition(currentPosition);
-    
+
     EvaluateCurrentTime(currentPosition.isPlaying, circularAudioBuffer.getRMSLevel(0, 0, circularAudioBuffer.getNumSamples()), timeSmooth[0] * sampleRate, buffer.getRMSLevel(0, 0, buffer.getNumSamples()));
     if (currentPitchSemitones < 0) // TODO: ESTO LOHAGO para que con st to subtract = 0 suene clean, PERO, esta generando que si vuelvo a 0 sin dejar de estar en "play" no vuelva nunca a dejar de pitchear. Tengo que fixear eso.
-        pitchShift.process(buffer, currentPitchSemitones);
-
+    {
+        if (algorithm == PitchShiftAlgorithm::RubberBand)
+            pitchShiftRubberBand.process(buffer, currentPitchSemitones);
+        else
+            pitchShift.process(buffer, currentPitchSemitones);
+    }
 }
+
 
 void DelayCircBuffer::EvaluateCurrentTime(bool isPlaying, float circBufferRmsLevel, float delayInSamples, float bufferRmsLevel)
 {

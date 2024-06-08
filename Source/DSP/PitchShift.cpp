@@ -20,11 +20,7 @@ void PitchShift::prepare(juce::dsp::ProcessSpec& spec)
 {
     const double smoothTime = 1e-13;
     paramShift.reset(spec.sampleRate, smoothTime);
-    /* paramFftSize.reset(sampleRate, smoothTime);
-     paramHopSize.reset(sampleRate, smoothTime);
-     paramWindowType.reset(sampleRate, smoothTime);*/
 
-     //======================================
 
     updateFftSize(spec.numChannels);
     updateHopSize();

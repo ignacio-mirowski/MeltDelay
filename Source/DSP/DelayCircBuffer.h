@@ -11,6 +11,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "PitchShift.h"
+#include "PitchShiftRubberBand.h"
 
 class DelayCircBuffer
 {
@@ -18,28 +19,28 @@ public:
     DelayCircBuffer();
     ~DelayCircBuffer();
 
+    enum class PitchShiftAlgorithm {
+        Juandagilc,
+        RubberBand
+    };
+
     void setDelayTime(float inTimeParam);
     void setDelayFeedback(float inFeedbackParam);
     void setDelayTimeStyle(int inTimeStlye);
     void setDelayTimeChoice(int inTimeChoice);
-    //void setInitialPitch(int inInitialPitch);
     void setSemitonesToSubtract(float inSemitonesToSubtract);
     void setSemitonesToStop(float inSemitonesToStop);
     void setMeltTreshold(float inMeltThreshold);
     void setSmoothMelt(float inSmoothMelt);
 
-    //void process(juce::AudioBuffer<float>& buffer);
-    void prepare(double theSampleRate, juce::dsp::ProcessSpec spec);
+    void prepare(juce::dsp::ProcessSpec spec);
 
-    void process(juce::AudioBuffer<float>& buffer, juce::AudioPlayHead* playHead);
+    void process(juce::AudioBuffer<float>& buffer, juce::AudioPlayHead* playHead, PitchShiftAlgorithm algorithm);
+
     void calculateTimeValue(juce::AudioPlayHead* playHead);
 
-    //Pitch shift parameters update (no me gusta que este esto aca...despues lo re-pienso!)
-    //void fftSizeUpdated(int indexChoice);
-    //void hopSizeUpdated(int indexChoice);
-    //void windowTypeUpdated(int indexChoice);
-
     void EvaluateCurrentTime(bool isPlaying, float circBufferRmsLevel, float delayInSamples, float bufferRmsLevel);
+
 
 private:
     float timeValue{ 0.25f };
@@ -56,6 +57,7 @@ private:
     float timeSmooth[2] = { 0.0f };
 
     PitchShift pitchShift;
+    PitchShiftRubberBand pitchShiftRubberBand;
 
     juce::AudioBuffer<float> circularAudioBuffer{ 2, circularBufferSize };
 
