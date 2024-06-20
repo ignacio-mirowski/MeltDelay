@@ -69,8 +69,9 @@
         <CONFIGURATION isDebug="1" name="Debug" targetName="MeltDelay" enablePluginBinaryCopyStep="1"
                        vst3BinaryLocation="D:\Vsts" headerPath="D:\PluginDev\Librerias\rubberband-3.3.0\rubberband"
                        libraryPath="D:\PluginDev\Librerias\rubberband-3.3.0\otherbuilds\x64\Debug"/>
-        <CONFIGURATION isDebug="0" name="Release" targetName="MeltDelay" headerPath="D:\PluginDev\Librerias\rubberband-3.3.0\rubberband&#10;D:\PluginDev\Librerias\rubberband-3.3.0\ladspa-lv2&#10;D:\PluginDev\Librerias\rubberband-3.3.0\src&#10;D:\PluginDev\Librerias\lv2-1.18.10\lv2-1.18.10\include\lv2\core"
-                       libraryPath="D:\PluginDev\Librerias\rubberband-3.3.0\otherbuilds\x64\Debug"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="MeltDelay" headerPath="D:\PluginDev\Librerias\rubberband-3.3.0\rubberband"
+                       libraryPath="D:\PluginDev\Librerias\rubberband-3.3.0\otherbuilds\x64\Release"
+                       enablePluginBinaryCopyStep="1" vst3BinaryLocation="C:\Users\Iggy-casa\Desktop"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_audio_basics" path="../../JUCERepo/JUCE/modules"/>

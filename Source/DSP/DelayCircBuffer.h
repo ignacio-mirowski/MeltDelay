@@ -24,6 +24,22 @@ public:
         RubberBand
     };
 
+    enum class DownScaleMode {
+        Free,
+        Chromatic,
+        Major,
+        NaturalMinor,
+        HarmonicMinor,
+        MelodicMinor,
+        MajorPentatonic,
+        MinorPentatonic,
+        Dorian,
+        Phrygian,
+        Lydian,
+        Mixolydian,
+        Locrian
+    };
+
     void setDelayTime(float inTimeParam);
     void setDelayFeedback(float inFeedbackParam);
     void setDelayTimeStyle(int inTimeStlye);
@@ -32,6 +48,7 @@ public:
     void setSemitonesToStop(float inSemitonesToStop);
     void setMeltTreshold(float inMeltThreshold);
     void setSmoothMelt(float inSmoothMelt);
+    void setMode(int modeChoice);
 
     void prepare(juce::dsp::ProcessSpec spec);
 
@@ -41,6 +58,8 @@ public:
 
     void EvaluateCurrentTime(bool isPlaying, float circBufferRmsLevel, float delayInSamples, float bufferRmsLevel);
 
+    std::vector<int> findScaleToUse();
+
 
 private:
     float timeValue{ 0.25f };
@@ -48,6 +67,7 @@ private:
     float sampleRate{ 0.0f };
     int timeStyle{ 0 };
     int timeChoice{ 0 };
+    int modeChoice{ 0 };
 
     static const int circularBufferSize = 132300; // Maximo delay en samples seria esto??
    // Comentado, porque cambie implementacion para que el circular buffer sea un AudioBuffer y no un array
@@ -70,4 +90,18 @@ private:
 
     float semitonesToSubtract = 1.0f;
     float semitonesToStop = -12.0f;
+
+    int scaleIndex = 0;
+    std::vector<int> inverseCromaticScaleIntervals = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+    std::vector<int> inverseMajorScaleIntervals = { 1, 2, 2, 2, 1, 2, 2 };
+    std::vector<int> inverseNaturalMinorScaleIntervals = { 1, 2, 2, 1, 2, 2, 2 };
+    std::vector<int> inverseHarmonicMinorScaleIntervals = { 1, 3, 1, 2, 1, 2, 2 };
+    std::vector<int> inverseMelodicMinorScaleIntervals = { 1, 2, 2, 1, 2, 2, 2 };
+    std::vector<int> inverseMajorPentatonicScaleIntervals = { 3, 2, 2, 3, 2 };
+    std::vector<int> inverseMinorPentatonicScaleIntervals = { 3, 2, 2, 3, 2 };
+    std::vector<int> inverseDorianScaleIntervals = { 1, 2, 2, 2, 1, 2, 2 };
+    std::vector<int> inversePhrygianScaleIntervals = { 1, 2, 2, 2, 2, 1, 2 };
+    std::vector<int> inverseLydianScaleIntervals = { 1, 2, 2, 1, 2, 2, 2 };
+    std::vector<int> inverseMixolydianScaleIntervals = { 1, 2, 2, 2, 1, 2, 2 };
+    std::vector<int> inverseLocrianScaleIntervals = { 1, 2, 2, 2, 1, 2, 2 };
 };

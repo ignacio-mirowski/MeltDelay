@@ -25,13 +25,21 @@ public:
     //void setCrisp(float inCrisp);
     //void setFormat(bool inFormat);
 
+    void onSmoothMeltChange(float inSmoothMelt, double sampleRate);
+
     void prepare(juce::dsp::ProcessSpec spec);
 
     void process(juce::AudioBuffer<float>& buffer, float inSemitones);
+    void process2(juce::AudioBuffer<float>& buffer);
+
 
 private:
-    //std::unique_ptr<RubberBand::RubberBandStretcher> pitchShifter;
+    std::unique_ptr<RubberBand::RubberBandStretcher> pitchShifter2;
+    juce::AudioBuffer<float> mTempBuffer;
+
     std::unique_ptr<RubberBandPitchShifter> pitchShifter;
+
+    juce::LinearSmoothedValue<float> semitonesParamShift{ 0.0f };
 
     //float octaves = 0.0f;
     //float semitones = 0.0f;

@@ -33,6 +33,11 @@ void DelayCircBuffer::setDelayTimeChoice(int inTimeChoice)
     timeChoice = inTimeChoice;
 }
 
+void DelayCircBuffer::setMode(int inModeChoice)
+{
+    modeChoice = inModeChoice;
+}
+
 void DelayCircBuffer::setMeltTreshold(float inMeltThreshold)
 {
     meltThreshold = inMeltThreshold;
@@ -58,6 +63,7 @@ void DelayCircBuffer::setSmoothMelt(float inSmoothMelt)
     if (smoothMelt != inSmoothMelt) 
     {
         pitchShift.onSmoothMeltChange(inSmoothMelt, sampleRate);
+        pitchShiftRubberBand.onSmoothMeltChange(inSmoothMelt, sampleRate);
         smoothMelt = inSmoothMelt;
     }
 }
@@ -204,10 +210,10 @@ void DelayCircBuffer::process(juce::AudioBuffer<float>& buffer, juce::AudioPlayH
     playHead->getCurrentPosition(currentPosition);
 
     EvaluateCurrentTime(currentPosition.isPlaying, circularAudioBuffer.getRMSLevel(0, 0, circularAudioBuffer.getNumSamples()), timeSmooth[0] * sampleRate, buffer.getRMSLevel(0, 0, buffer.getNumSamples()));
-    //if (currentPitchSemitones < 0) // TODO: ESTO LOHAGO para que con st to subtract = 0 suene clean, PERO, esta generando que si vuelvo a 0 sin dejar de estar en "play" no vuelva nunca a dejar de pitchear. Tengo que fixear eso.
-    //{
+    ////if (currentPitchSemitones < 0) // TODO: ESTO LOHAGO para que con st to subtract = 0 suene clean, PERO, esta generando que si vuelvo a 0 sin dejar de estar en "play" no vuelva nunca a dejar de pitchear. Tengo que fixear eso.
+    ////{
         if (algorithm == PitchShiftAlgorithm::RubberBand)
-            pitchShiftRubberBand.process(buffer, currentPitchSemitones);
+            pitchShiftRubberBand.process(buffer, currentPitchSemitones); //Delay tarda en arrancar usando rubberband :( 
         else
             pitchShift.process(buffer, currentPitchSemitones);
     //}
@@ -216,6 +222,18 @@ void DelayCircBuffer::process(juce::AudioBuffer<float>& buffer, juce::AudioPlayH
 
 void DelayCircBuffer::EvaluateCurrentTime(bool isPlaying, float circBufferRmsLevel, float delayInSamples, float bufferRmsLevel)
 {
+    float initialCurrentPitchSemitones = 0;// semitonesToSubtract * -1;
+    std::vector<int> scaleToUse = findScaleToUse();
+
+    if (modeChoice == 0) { //Modo free
+        initialCurrentPitchSemitones = semitonesToSubtract * -1;
+    }
+    else {
+
+        // Calcular initialCurrentPitchSemitones segun la escala
+        initialCurrentPitchSemitones = scaleToUse[0] * -1;
+    }
+
     // Primeros dos ifs para en play/pause se resettee conteo de semitones
     if (isPlaying != localIsPlaying)
     {
@@ -223,14 +241,14 @@ void DelayCircBuffer::EvaluateCurrentTime(bool isPlaying, float circBufferRmsLev
         if (localIsPlaying)
         {
             sampleCount = 0;
-            currentPitchSemitones = 0.0f;
+            currentPitchSemitones = initialCurrentPitchSemitones;
         }
     }
 
     if (!localIsPlaying && circBufferRmsLevel < 3.0e-10f)
     {
         sampleCount = 0;
-        currentPitchSemitones = 0.0f;
+        currentPitchSemitones = initialCurrentPitchSemitones;
     }
 
     // Solo quiero bajar semitonos si el nivel audio actual esta por encima del threshold
@@ -242,17 +260,30 @@ void DelayCircBuffer::EvaluateCurrentTime(bool isPlaying, float circBufferRmsLev
         if (sampleCount >= delayInSamples)//sampleRate) // >= sampleRate seria un segundo. delayInSamples el "time" del delay
         {
             sampleCount = 0;
-            currentPitchSemitones = currentPitchSemitones - semitonesToSubtract;
+            
+            if (modeChoice == 0) { //Modo free
+                currentPitchSemitones = currentPitchSemitones - semitonesToSubtract;
+            }
+            else {
+                if (scaleIndex >= (scaleToUse.size() - 1))
+                    scaleIndex = 0;
+
+                currentPitchSemitones = currentPitchSemitones - scaleToUse[scaleIndex];
+                scaleIndex++;
+
+                //if (scaleIndex >= (scaleToUse.size() - 1))
+                //    scaleIndex = 0;
+            }
 
             if (currentPitchSemitones < semitonesToStop) {
-                currentPitchSemitones = 0.0f;
+                currentPitchSemitones = initialCurrentPitchSemitones;
             }
         }
     }
     else 
     {
         sampleCount = 0;
-        currentPitchSemitones = 0.0f;
+        currentPitchSemitones = initialCurrentPitchSemitones;
     }
 
 }
@@ -294,5 +325,41 @@ void DelayCircBuffer::calculateTimeValue(juce::AudioPlayHead* playHead) //en seg
         default:
             break;
         }
+    }
+}
+
+std::vector<int> DelayCircBuffer::findScaleToUse() 
+{
+    DownScaleMode scale = static_cast<DownScaleMode>(modeChoice);
+
+    switch (scale) {
+        case DownScaleMode::Free:
+            return inverseCromaticScaleIntervals;
+        case DownScaleMode::Chromatic:
+            return inverseCromaticScaleIntervals;
+        case DownScaleMode::Major:
+            return inverseMajorScaleIntervals;
+        case DownScaleMode::NaturalMinor:
+            return inverseNaturalMinorScaleIntervals;
+        case DownScaleMode::HarmonicMinor:
+            return inverseHarmonicMinorScaleIntervals;
+        case DownScaleMode::MelodicMinor:
+            return inverseMelodicMinorScaleIntervals;
+        case DownScaleMode::MajorPentatonic:
+            return inverseMajorPentatonicScaleIntervals;
+        case DownScaleMode::MinorPentatonic:
+            return inverseMinorPentatonicScaleIntervals;
+        case DownScaleMode::Dorian:
+            return inverseDorianScaleIntervals;
+        case DownScaleMode::Phrygian:
+            return inversePhrygianScaleIntervals;
+        case DownScaleMode::Lydian:
+            return inverseLydianScaleIntervals;
+        case DownScaleMode::Mixolydian:
+            return inverseMixolydianScaleIntervals;
+        case DownScaleMode::Locrian:
+            return inverseLocrianScaleIntervals;
+        default:
+            return {};
     }
 }

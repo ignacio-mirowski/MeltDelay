@@ -46,12 +46,19 @@ juce::AudioProcessorValueTreeState::ParameterLayout MeltDelayAudioProcessor::cre
         1.0f, "st", juce::AudioProcessorParameter::genericParameter, nullptr, nullptr));
 
     parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("SemitonesToStop", 1), "SemitonesToStop",
-        juce::NormalisableRange<float>(-72.0f, -1.0f, 1.0f, 1.0f),
+        juce::NormalisableRange<float>(-24.0f, -1.0f, 1.0f, 1.0f), //-24 porque mas abajo si no es con RubberBand suena mal
         -12.0f, "st", juce::AudioProcessorParameter::genericParameter, nullptr, nullptr));
 
     parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("SmoothMelt", 1), "SmoothMelt",
         juce::NormalisableRange<float>(1e-13f, 1e-3f, 1e-10f, 1.0f),
         1e-13f, "", juce::AudioProcessorParameter::genericParameter, nullptr, nullptr));
+
+    parameters.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{ "ModeChoice", 1 }, "ModeChoice", 
+        juce::StringArray("Free", "Chromatic", "Major", "Natural Minor", "Harmonic Minor", "Melodic Minor", "Major Pentatonic", "Minor Pentatonic", "Dorian", "Phrygian", "Lydian",
+        "Mixolydian", "Locrian"
+        ), 0));
+
+    //parameters.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{ "UpDown", 1 }, "UpDown", juce::StringArray("Down", "Up"), 0));
 
     return parameters;
 }
@@ -175,6 +182,7 @@ void MeltDelayAudioProcessor::updateParameters()
     float semitonesToSubtract = *apvts.getRawParameterValue("SemitonesToSubtract");
     float semitonesToStop = *apvts.getRawParameterValue("SemitonesToStop");
     float smoothMelt = *apvts.getRawParameterValue("SmoothMelt");
+    int mode = *apvts.getRawParameterValue("ModeChoice");
 
     delayJuceDSP.setDelayFeedback(inFeedbackParameter);
     delayJuceDSP.setDelayTime(inTime);
@@ -186,6 +194,7 @@ void MeltDelayAudioProcessor::updateParameters()
     delayCircBuffer.setSemitonesToSubtract(semitonesToSubtract);
     delayCircBuffer.setSemitonesToStop(semitonesToStop);
     delayCircBuffer.setSmoothMelt(smoothMelt);
+    delayCircBuffer.setMode(mode);
 
 
     dryWet.setDryWetValue(inDryWetParameter);
@@ -207,6 +216,8 @@ void MeltDelayAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juc
     // CON DRY SIEMPRE ON + REPETCIONES SOLAS
     updateParameters();
 
+    //pitchShiftRubberBand.process2(buffer);
+
     juce::AudioBuffer<float> delayBuffer;
 
     dryBuffer.makeCopyOf(buffer);
@@ -214,7 +225,7 @@ void MeltDelayAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juc
     delayBuffer.makeCopyOf(buffer);
 
     // DryWet al 100% para que solo escuchemos el delay 
-    delayCircBuffer.process(delayBuffer, getPlayHead(), DelayCircBuffer::PitchShiftAlgorithm::RubberBand);
+    delayCircBuffer.process(delayBuffer, getPlayHead(), DelayCircBuffer::PitchShiftAlgorithm::Juandagilc);
 
     //Simplemente es sumar sample por sample de ambos buffers y sustituir los valores en el buffer original
     joinBuffers(buffer, dryBufferAlwaysOn, delayBuffer);
